@@ -19,7 +19,7 @@ function adFiles(string $dir): array {
 }
 
 $five = adFiles(__DIR__ . '/5s');
-$popup = adFiles(dirname(__DIR__) . '/popop');
+$popup = adFiles(__DIR__ . '/popop');
 
 function randomAd(array $files, string $base): ?array {
     if (!$files) return null;
@@ -34,5 +34,5 @@ function randomAd(array $files, string $base): ?array {
 echo json_encode([
     'ok' => true,
     'five_seconds' => randomAd($five, '/ads/5s'),
-    'popup' => randomAd($popup, '/popop'),
+    'popup' => randomAd($popup, '/ads/popop'),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
