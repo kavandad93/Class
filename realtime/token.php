@@ -67,6 +67,23 @@ try {
     ));
     $preset = trim((string)($cfg['realtimekit_preset'] ?? getenv('REALTIMEKIT_PRESET') ?? ($isTeacher ? 'host' : 'participant')));
 
+    $safe = [
+        'account_id' => $accountId !== '' ? $accountId : 'MISSING',
+        'account_id_length' => strlen($accountId),
+        'app_id' => $appId !== '' ? $appId : 'MISSING',
+        'app_id_length' => strlen($appId),
+        'api_token' => $apiToken !== '' ? 'PRESENT (hidden)' : 'MISSING',
+        'api_token_length' => strlen($apiToken),
+        'preset' => $preset !== '' ? $preset : 'MISSING',
+        'class_id' => $classId,
+        'room_code' => (string)$class['room_code'],
+        'class_status' => (string)$class['status'],
+        'realtime_meeting_id' => trim((string)($class['realtime_meeting_id'] ?? '')) ?: 'NOT CREATED',
+        'user_id' => (int)$user['id'],
+        'user_role' => (string)$user['role'],
+        'access' => $allowed ? 'ALLOWED' : 'DENIED',
+    ];
+
     $missing = [];
     if ($accountId === '') $missing[] = 'cloudflare_account_id';
     if ($appId === '') $missing[] = 'realtimekit_app_id';
@@ -99,6 +116,7 @@ try {
         $meetingId = (string)($data['data']['id'] ?? '');
         if ($meetingId === '') throw new RuntimeException('شناسه Meeting از Cloudflare دریافت نشد.');
         $pdo->prepare('UPDATE classes SET realtime_meeting_id=?,updated_at=NOW() WHERE id=? AND (realtime_meeting_id IS NULL OR realtime_meeting_id=?)')->execute([$meetingId,$classId,'']);
+        $safe['realtime_meeting_id'] = $meetingId;
     }
 
     $body = [
@@ -126,8 +144,11 @@ try {
     $token = (string)($data['data']['token'] ?? '');
     if ($token === '') throw new RuntimeException('توکن RealtimeKit دریافت نشد.');
 
-    echo json_encode(['ok'=>true,'token'=>$token,'meeting_id'=>$meetingId], JSON_UNESCAPED_UNICODE);
+    $safe['create_meeting'] = 'OK';
+    $safe['participant_token'] = 'ISSUED (hidden)';
+    echo json_encode(['ok'=>true,'token'=>$token,'meeting_id'=>$meetingId,'diagnostics'=>$safe], JSON_UNESCAPED_UNICODE);
 } catch (Throwable $e) {
     http_response_code(400);
-    echo json_encode(['ok'=>false,'error'=>$e->getMessage()], JSON_UNESCAPED_UNICODE);
+    $diag = isset($safe) && is_array($safe) ? $safe : [];
+    echo json_encode(['ok'=>false,'error'=>$e->getMessage(),'diagnostics'=>$diag], JSON_UNESCAPED_UNICODE);
 }
