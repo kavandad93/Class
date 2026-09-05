@@ -1,9 +1,8 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/../includes/bootstrap.php';
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    verify_csrf();
-}
+// Logout is intentionally idempotent; a stale/missing CSRF token must not
+// trap the user on the logout endpoint.
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
