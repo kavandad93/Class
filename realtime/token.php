@@ -34,12 +34,28 @@ try {
     if (!$allowed) throw new RuntimeException('دسترسی شما به این کلاس تأیید نشده است.');
 
     $cfgFile = '/home2/kadad/data.php';
-    $cfg = is_file($cfgFile) ? (array)require $cfgFile : [];
+    if (!is_file($cfgFile) || !is_readable($cfgFile)) {
+        throw new RuntimeException('فایل /home2/kadad/data.php برای PHP قابل خواندن نیست.');
+    }
+    $cfg = (array)require $cfgFile;
+
     $accountId = trim((string)($cfg['cloudflare_account_id'] ?? getenv('CLOUDFLARE_ACCOUNT_ID') ?? ''));
     $appId = trim((string)($cfg['realtimekit_app_id'] ?? getenv('REALTIMEKIT_APP_ID') ?? ''));
-    $apiToken = trim((string)($cfg['cloudflare_api_token'] ?? getenv('CLOUDFLARE_API_TOKEN') ?? ''));
+    $apiToken = trim((string)(
+        $cfg['cloudflare_api_token']
+        ?? $cfg['realtimekit_api_token']
+        ?? getenv('CLOUDFLARE_API_TOKEN')
+        ?? ''
+    ));
     $preset = trim((string)($cfg['realtimekit_preset'] ?? getenv('REALTIMEKIT_PRESET') ?? ($isTeacher ? 'host' : 'participant')));
-    if ($accountId === '' || $appId === '' || $apiToken === '') throw new RuntimeException('تنظیمات RealtimeKit در data.php کامل نشده است.');
+
+    $missing = [];
+    if ($accountId === '') $missing[] = 'cloudflare_account_id';
+    if ($appId === '') $missing[] = 'realtimekit_app_id';
+    if ($apiToken === '') $missing[] = 'cloudflare_api_token';
+    if ($missing) {
+        throw new RuntimeException('این موارد در data.php خالی یا نامعتبر هستند: '.implode('، ', $missing));
+    }
 
     $meetingId = trim((string)($class['realtime_meeting_id'] ?? ''));
     $api = 'https://api.cloudflare.com/client/v4/accounts/'.rawurlencode($accountId).'/realtime/kit/'.rawurlencode($appId);
