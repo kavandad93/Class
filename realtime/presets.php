@@ -16,16 +16,42 @@ function rtk_api_config(): array
 function rtk_request(string $method, string $url, string $token, ?array $body = null): array
 {
     $ch = curl_init($url);
-    $headers = ['Authorization: Bearer '.$token, 'Content-Type: application/json'];
-    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_CUSTOMREQUEST=>$method, CURLOPT_HTTPHEADER=>$headers, CURLOPT_TIMEOUT=>20]);
-    if ($body !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body, JSON_UNESCAPED_UNICODE));
-    $raw = curl_exec($ch); $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); $err = curl_error($ch); curl_close($ch);
+    $headers = ['Authorization: Bearer '.$token, 'Content-Type: application/json', 'Accept: application/json'];
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_TIMEOUT => 20,
+        CURLOPT_CONNECTTIMEOUT => 10,
+    ]);
+    if ($body !== null) {
+        $json = json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($json === false) throw new RuntimeException('ساخت درخواست RealtimeKit ناموفق بود.');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+    }
+    $raw = curl_exec($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+
     if ($raw === false) throw new RuntimeException('ارتباط با Cloudflare برقرار نشد: '.$err);
+
     $data = json_decode($raw, true);
     if ($status < 200 || $status >= 300 || !is_array($data) || ($data['success'] ?? false) !== true) {
-        $msg = '';
-        foreach (($data['errors'] ?? []) as $e) if (is_array($e) && !empty($e['message'])) $msg .= ($msg ? ' | ' : '').$e['message'];
-        throw new RuntimeException('RealtimeKit HTTP '.$status.($msg ? ': '.$msg : ''));
+        $parts = [];
+        foreach (($data['errors'] ?? []) as $e) {
+            if (is_array($e) && !empty($e['message'])) {
+                $parts[] = (isset($e['code']) ? '['.$e['code'].'] ' : '').(string)$e['message'];
+            }
+        }
+        if (!$parts && is_array($data) && isset($data['message'])) $parts[] = (string)$data['message'];
+
+        $detail = $parts ? implode(' | ', $parts) : trim((string)$raw);
+        if ($detail === '') $detail = 'پاسخ خالی از Cloudflare دریافت شد.';
+        if (mb_strlen($detail) > 1200) $detail = mb_substr($detail, 0, 1200).'…';
+
+        $path = parse_url($url, PHP_URL_PATH) ?: '';
+        throw new RuntimeException('RealtimeKit HTTP '.$status.' — '.$method.' '.$path.' — '.$detail);
     }
     return $data;
 }
