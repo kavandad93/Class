@@ -87,6 +87,7 @@ echo json_encode([
     'ok' => true,
     'class_id' => $classId,
     'manager' => $isManager,
+    'csrf' => csrf_token(),
     'active' => (bool)$class['break_active'],
     'started_at' => $class['break_started_at'],
     'ad' => $ad,
