@@ -4,6 +4,24 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
+function cloudflare_error_message(string $raw, int $status): string
+{
+    $data = json_decode($raw, true);
+    $parts = [];
+    if (is_array($data) && isset($data['errors']) && is_array($data['errors'])) {
+        foreach ($data['errors'] as $err) {
+            if (is_array($err)) {
+                $code = isset($err['code']) ? (string)$err['code'] : '';
+                $message = isset($err['message']) ? (string)$err['message'] : '';
+                if ($message !== '') $parts[] = ($code !== '' ? '['.$code.'] ' : '').$message;
+            }
+        }
+    }
+    if (!$parts && is_array($data) && isset($data['message'])) $parts[] = (string)$data['message'];
+    $detail = $parts ? ' '.implode(' | ', $parts) : '';
+    return 'HTTP '.$status.'.'.$detail;
+}
+
 try {
     $user = require_auth();
     $pdo = db();
@@ -62,9 +80,21 @@ try {
 
     if ($meetingId === '') {
         $ch = curl_init($api.'/meetings');
-        curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_RETURNTRANSFER=>true, CURLOPT_HTTPHEADER=>['Authorization: Bearer '.$apiToken,'Content-Type: application/json'], CURLOPT_POSTFIELDS=>json_encode(['title'=>$class['title']], JSON_UNESCAPED_UNICODE), CURLOPT_TIMEOUT=>20]);
-        $raw = curl_exec($ch); $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); $curlErr = curl_error($ch); curl_close($ch);
-        if ($raw === false || $status < 200 || $status >= 300) throw new RuntimeException('ساخت Meeting در RealtimeKit ناموفق بود.'.($curlErr ? ' '.$curlErr : ''));
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ['Authorization: Bearer '.$apiToken, 'Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode(['title' => $class['title']], JSON_UNESCAPED_UNICODE),
+            CURLOPT_TIMEOUT => 20,
+        ]);
+        $raw = curl_exec($ch);
+        $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr = curl_error($ch);
+        curl_close($ch);
+        if ($raw === false) throw new RuntimeException('ارتباط با Cloudflare برقرار نشد: '.$curlErr);
+        if ($status < 200 || $status >= 300) {
+            throw new RuntimeException('ساخت Meeting در RealtimeKit ناموفق بود: '.cloudflare_error_message($raw, $status));
+        }
         $data = json_decode($raw, true);
         $meetingId = (string)($data['data']['id'] ?? '');
         if ($meetingId === '') throw new RuntimeException('شناسه Meeting از Cloudflare دریافت نشد.');
@@ -77,9 +107,21 @@ try {
         'name' => (string)$user['name'],
     ];
     $ch = curl_init($api.'/meetings/'.rawurlencode($meetingId).'/participants');
-    curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_RETURNTRANSFER=>true, CURLOPT_HTTPHEADER=>['Authorization: Bearer '.$apiToken,'Content-Type: application/json'], CURLOPT_POSTFIELDS=>json_encode($body, JSON_UNESCAPED_UNICODE), CURLOPT_TIMEOUT=>20]);
-    $raw = curl_exec($ch); $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); $curlErr = curl_error($ch); curl_close($ch);
-    if ($raw === false || $status < 200 || $status >= 300) throw new RuntimeException('صدور دسترسی RealtimeKit ناموفق بود.'.($curlErr ? ' '.$curlErr : ''));
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Authorization: Bearer '.$apiToken, 'Content-Type: application/json'],
+        CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE),
+        CURLOPT_TIMEOUT => 20,
+    ]);
+    $raw = curl_exec($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr = curl_error($ch);
+    curl_close($ch);
+    if ($raw === false) throw new RuntimeException('ارتباط با Cloudflare برقرار نشد: '.$curlErr);
+    if ($status < 200 || $status >= 300) {
+        throw new RuntimeException('صدور دسترسی RealtimeKit ناموفق بود: '.cloudflare_error_message($raw, $status));
+    }
     $data = json_decode($raw, true);
     $token = (string)($data['data']['token'] ?? '');
     if ($token === '') throw new RuntimeException('توکن RealtimeKit دریافت نشد.');
