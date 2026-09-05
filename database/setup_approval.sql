@@ -1,4 +1,6 @@
 -- Run once in phpMyAdmin on kadad_kadad_class.
+USE kadad_kadad_class;
+
 -- 1) Class start time (skip this statement if starts_at already exists).
 ALTER TABLE classes ADD COLUMN starts_at DATETIME NULL AFTER status;
 ALTER TABLE classes ADD INDEX idx_classes_starts_at (starts_at);
