@@ -45,6 +45,7 @@ if (!$member->fetchColumn() && !$teacher) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
     $message = trim((string)($_POST['message'] ?? ''));
     if ($message === '' || mb_strlen($message) > 1000) {
         http_response_code(422);
