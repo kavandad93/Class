@@ -1,4 +1,6 @@
 -- Run once in phpMyAdmin on kadad_kadad_class.
+USE kadad_kadad_class;
+
 -- Add guest access flag to classes.
 ALTER TABLE classes ADD COLUMN allow_guest TINYINT(1) NOT NULL DEFAULT 0 AFTER status;
 
