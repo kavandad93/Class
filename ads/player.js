@@ -8,6 +8,7 @@ let breakState=false;
 let csrf='';
 let manager=false;
 let lastAdKey='';
+let breakAdTimer=null;
 
 const css=`#kadad-popup{position:fixed;left:18px;bottom:18px;width:min(360px,calc(100vw - 36px));z-index:99980;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.35);display:block}#kadad-popup .x{position:absolute;right:8px;top:8px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;z-index:2;font-size:18px}#kadad-popup img,#kadad-popup video{display:block;width:100%;max-height:360px;object-fit:cover}#kadad-popup .tag{padding:8px 10px;color:#344054;font:700 11px Tahoma;text-align:center}#kadad-break{position:fixed;inset:0;background:rgba(3,7,18,.97);z-index:100000;display:flex;align-items:center;justify-content:center;padding:24px;color:#fff}#kadad-break .break-box{width:min(1000px,96vw);max-height:94vh;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px}#kadad-break .break-ad{width:min(900px,92vw);max-height:62vh;object-fit:contain;background:#000;border-radius:18px;box-shadow:0 25px 80px rgba(0,0,0,.5)}#kadad-break .break-title{font:900 clamp(30px,6vw,68px) Vazirmatn,Tahoma,sans-serif;margin:0}#kadad-break .break-sub{font:600 15px Vazirmatn,Tahoma,sans-serif;color:#aebbd0;margin:0}#kadad-break .break-end{display:none;width:auto;min-width:190px;height:48px;border:0;border-radius:12px;background:#6d63ff;color:#fff;font:800 14px Vazirmatn;cursor:pointer;padding:0 20px}#kadad-break.manager .break-end{display:inline-block}#kadad-break .break-status{font:700 12px Vazirmatn;color:#7dd3fc;min-height:18px}#kadad-break-button{position:fixed;left:18px;top:18px;z-index:99970;width:auto;height:44px;border:1px solid #303e59;border-radius:12px;background:#101b2e;color:#fff;padding:0 15px;font:800 13px Vazirmatn;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.25)}#kadad-break-button:hover{background:#17253b}@media(max-width:600px){#kadad-break{padding:12px}#kadad-break .break-ad{max-height:52vh}#kadad-break-button{left:10px;top:10px}#kadad-popup{left:10px;bottom:10px;width:calc(100vw - 20px)}}`;
 const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
@@ -16,7 +17,8 @@ const makeMedia=(ad,autoplay=false)=>{if(!ad)return null;let e;if(ad.type==='vid
 
 const showPopup=ad=>{if(!ad||popupShown)return;popupShown=true;const o=document.createElement('div');o.id='kadad-popup';const x=document.createElement('button');x.className='x';x.textContent='×';x.setAttribute('aria-label','بستن تبلیغ');x.onclick=()=>o.remove();o.appendChild(x);const media=makeMedia(ad,false);if(media){if(media.tagName==='VIDEO'){media.autoplay=true;media.loop=true;media.muted=true;media.playsInline=true;media.controls=true;}o.appendChild(media);media.play?.().catch(()=>{});}const tag=document.createElement('div');tag.className='tag';tag.textContent='تبلیغ';o.appendChild(tag);document.body.appendChild(o);};
 
-const removeBreak=()=>{if(breakOverlay){breakOverlay.remove();breakOverlay=null;}breakState=false;};
+const clearBreakAdTimer=()=>{if(breakAdTimer){clearTimeout(breakAdTimer);breakAdTimer=null;}};
+const removeBreak=()=>{clearBreakAdTimer();if(breakOverlay){breakOverlay.remove();breakOverlay=null;}breakState=false;};
 
 const showBreak=state=>{
   if(!state.active){removeBreak();return;}
@@ -33,12 +35,27 @@ const showBreak=state=>{
   }
   breakOverlay.classList.toggle('manager',manager);
   const box=breakOverlay.querySelector('.break-box');
-  const old=breakOverlay.querySelector('.break-ad');if(old)old.remove();
   const key=JSON.stringify(state.ad||null);
   if(state.ad && key!==lastAdKey){
-    const media=makeMedia(state.ad,true);if(media){media.className='break-ad';box.insertBefore(media,box.children[1]);if(media.tagName==='VIDEO'){media.onended=()=>{const s=breakOverlay?.querySelector('.break-status');if(s)s.textContent='تبلیغ تمام شد؛ منتظر پایان زمان استراحت...';};media.play().catch(()=>{});}lastAdKey=key;}
+    clearBreakAdTimer();
+    const old=breakOverlay.querySelector('.break-ad');if(old)old.remove();
+    const media=makeMedia(state.ad,true);
+    if(media){
+      media.className='break-ad';box.insertBefore(media,box.children[1]);
+      media.play?.().catch(()=>{});
+      lastAdKey=key;
+      breakAdTimer=setTimeout(()=>{
+        const current=breakOverlay?.querySelector('.break-ad');
+        if(current)current.remove();
+        const s=breakOverlay?.querySelector('.break-status');
+        if(s)s.textContent='تبلیغ تمام شد؛ منتظر پایان زمان استراحت...';
+        breakAdTimer=null;
+      },5000);
+    }
   }
-  const status=breakOverlay.querySelector('.break-status');if(status)status.textContent=state.ad?'در حال پخش تبلیغ...':'در حال استراحت...';
+  const status=breakOverlay.querySelector('.break-status');
+  if(status && !breakAdTimer)status.textContent='در حال استراحت...';
+  else if(status)status.textContent='در حال پخش تبلیغ...';
 };
 
 const changeBreak=async action=>{
