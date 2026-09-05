@@ -15,20 +15,28 @@ function db(): PDO
     static $pdo = null;
     if ($pdo instanceof PDO) return $pdo;
 
-    $host = getenv('DB_HOST') ?: 'localhost';
-    $name = getenv('DB_DATABASE') ?: 'kadad_kadad_class';
-    $user = getenv('DB_USERNAME') ?: 'kadad_kadad_class';
-    $pass = getenv('DB_PASSWORD') ?: '';
+    // Private cPanel configuration. This file is outside public_html
+    // and must never be committed to the Git repository.
+    $configFile = '/home2/kadad/data.php';
+    $config = is_file($configFile) ? require $configFile : [];
+
+    $host = $config['host'] ?? (getenv('DB_HOST') ?: 'localhost');
+    $name = $config['database'] ?? (getenv('DB_DATABASE') ?: 'kadad_kadad_class');
+    $user = $config['username'] ?? (getenv('DB_USERNAME') ?: 'kadad_kadad_class');
+    $pass = $config['password'] ?? (getenv('DB_PASSWORD') ?: '');
 
     if ($pass === '') {
-        throw new RuntimeException('DB_PASSWORD is not configured on the server.');
+        throw new RuntimeException('Database password is not configured.');
     }
 
     $pdo = new PDO(
         "mysql:host={$host};dbname={$name};charset=utf8mb4",
         $user,
         $pass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]
     );
     return $pdo;
 }
