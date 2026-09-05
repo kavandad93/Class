@@ -107,7 +107,6 @@ try {
 
     $api = 'https://api.cloudflare.com/client/v4/accounts/'.rawurlencode($accountId).'/realtime/kit/'.rawurlencode($appId);
 
-    // Cloudflare's official endpoint returns the actual presets belonging to this App.
     [$presetStatus, $presetRaw] = cloudflare_get($api.'/presets?per_page=100', $apiToken);
     if ($presetStatus < 200 || $presetStatus >= 300) {
         $safe['preset_api_status'] = $presetStatus;
@@ -126,9 +125,13 @@ try {
     $safe['preset_count'] = count($presets);
     $safe['preset_api_status'] = $presetStatus;
 
+    // If no preset is explicitly configured, map the user's role to the
+    // standard RealtimeKit group-call presets exposed by this App.
     $presetName = $configuredPreset;
     if ($presetName === '') {
-        $preferred = $isTeacher ? ['host','teacher','moderator','admin'] : ['participant','student','attendee','guest'];
+        $preferred = $isTeacher
+            ? ['group_call_host', 'host', 'teacher', 'moderator', 'admin']
+            : ['group_call_participant', 'participant', 'student', 'attendee', 'guest'];
         foreach ($preferred as $candidate) {
             foreach ($presets as $p) {
                 if (strcasecmp($p['name'], $candidate) === 0) {
@@ -154,6 +157,7 @@ try {
     }
     $safe['preset_selected'] = $selectedPreset['name'];
     $safe['preset_id'] = $selectedPreset['id'];
+    $safe['preset_match'] = 'YES';
 
     if ($meetingId === '') {
         $ch = curl_init($api.'/meetings');
