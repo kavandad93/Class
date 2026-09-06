@@ -16,7 +16,7 @@ if (!preg_match('/^[A-Z0-9]{4,32}$/', $code)) {
     exit;
 }
 
-$q = $pdo->prepare('SELECT id, teacher_id, status, break_active, break_started_at, break_ad_name FROM classes WHERE room_code=? LIMIT 1');
+$q = $pdo->prepare('SELECT id, teacher_id, status, break_active, break_started_at, break_ad_name, break_music_url FROM classes WHERE room_code=? LIMIT 1');
 $q->execute([$code]);
 $class = $q->fetch();
 if (!$class) {
@@ -66,7 +66,7 @@ if ($action !== '') {
         exit;
     }
 
-    $q = $pdo->prepare('SELECT break_active, break_started_at, break_ad_name FROM classes WHERE id=? LIMIT 1');
+    $q = $pdo->prepare('SELECT break_active, break_started_at, break_ad_name, break_music_url FROM classes WHERE id=? LIMIT 1');
     $q->execute([$classId]);
     $class = array_merge($class, $q->fetch() ?: []);
 }
@@ -83,6 +83,14 @@ if (!empty($class['break_ad_name'])) {
     }
 }
 
+$music = null;
+if (!empty($class['break_music_url'])) {
+    $parts = parse_url((string)$class['break_music_url']);
+    if ($parts && in_array(strtolower((string)($parts['scheme'] ?? '')), ['http','https'], true) && !empty($parts['host'])) {
+        $music = (string)$class['break_music_url'];
+    }
+}
+
 echo json_encode([
     'ok' => true,
     'class_id' => $classId,
@@ -91,4 +99,5 @@ echo json_encode([
     'active' => (bool)$class['break_active'],
     'started_at' => $class['break_started_at'],
     'ad' => $ad,
+    'music_url' => $music,
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
