@@ -5,15 +5,13 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 require_auth();
 
-function adMediaType(string $link): string
-{
+function adMediaType(string $link): string {
     $path = (string)(parse_url($link, PHP_URL_PATH) ?: $link);
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
     return in_array($ext, ['mp4','webm','ogg','mov','m4v'], true) ? 'video' : 'image';
 }
 
-function loadAdRegistry(): array
-{
+function loadAdRegistry(): array {
     $file = __DIR__ . '/ads.json';
     if (!is_file($file)) return [];
     $data = json_decode((string)file_get_contents($file), true);
@@ -31,12 +29,11 @@ function loadAdRegistry(): array
     return $out;
 }
 
-function randomRegisteredAd(array $ads, string $kind): ?array
-{
+function randomRegisteredAd(array $ads, string $kind): ?array {
     $matches = array_values(array_filter($ads, static fn(array $ad): bool => $ad['type'] === $kind));
     if (!$matches) return null;
     $ad = $matches[random_int(0, count($matches) - 1)];
-    return ['name'=>$ad['name'], 'url'=>$ad['link'], 'type'=>$ad['media_type']];
+    return ['name'=>$ad['name'], 'url'=>$ad['link'], 'type'=>$ad['media_type'], 'target'=>$ad['link']];
 }
 
 $ads = loadAdRegistry();
