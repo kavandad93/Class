@@ -1,25 +1,28 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/../includes/bootstrap.php';
-$user = current_user();
-function h(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
-?><!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>کاداد کلاس | کلاس آنلاین ساده و حرفه‌ای</title>
-<meta name="description" content="کاداد کلاس؛ فضای ساده و سریع برای برگزاری و شرکت در کلاس‌های آنلاین.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#070b16;--panel:#0d1324;--line:#202a43;--text:#f7f8fc;--muted:#a4afc2;--brand:#766cff;--brand2:#5148e8;--white:#fff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Vazirmatn,Tahoma,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 5%,rgba(118,108,255,.28),transparent 30%),radial-gradient(circle at 88% 12%,rgba(56,189,248,.17),transparent 28%),linear-gradient(150deg,#070b16,#0b1120 55%,#080d19);overflow-x:hidden}.container{width:min(1160px,calc(100% - 34px));margin:auto}header{position:sticky;top:0;z-index:30;background:rgba(7,11,22,.72);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06)}nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:900;font-size:20px}.logo{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 12px 30px rgba(99,91,255,.28)}.nav-actions{display:flex;gap:8px}.nav-actions a{color:#d7deea;text-decoration:none;padding:9px 13px;border-radius:10px;font-size:12px;font-weight:800}.nav-actions .login{border:1px solid var(--line);background:#10182a}.hero{padding:80px 0 65px}.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:55px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #27324d;background:#10182a;border-radius:999px;color:#b9b3ff;font-size:12px;font-weight:800}.pulse{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 0 6px rgba(52,211,153,.1)}h1{font-size:clamp(43px,6vw,74px);line-height:1.12;letter-spacing:-2px;margin:22px 0 18px;font-weight:900}.gradient{background:linear-gradient(100deg,#a59fff,#7c6cff 45%,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}.lead{color:var(--muted);font-size:18px;line-height:2;max-width:650px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}.btn{min-height:52px;padding:0 22px;border-radius:14px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:900}.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;box-shadow:0 18px 40px rgba(81,72,232,.28)}.secondary{color:#e5e7eb;background:#10182a;border:1px solid var(--line)}.preview{position:relative;border:1px solid #26324d;background:linear-gradient(145deg,#101a2d,#0b1221);border-radius:25px;padding:15px;box-shadow:0 30px 90px rgba(0,0,0,.35);transform:rotate(1.5deg)}.preview-bar{height:36px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--line);margin-bottom:12px}.circle{width:8px;height:8px;border-radius:50%;background:#34415e}.preview-main{display:grid;grid-template-columns:1fr 105px;gap:10px;min-height:300px}.screen{border-radius:15px;background:linear-gradient(145deg,#17233b,#0c1425);display:grid;place-items:center;color:#8f9db5;font-weight:800}.mini-side{border-radius:15px;background:#0a1324;border:1px solid var(--line);padding:9px}.mini-person{height:34px;border-radius:9px;background:#111d31;margin-bottom:7px}.section{padding:55px 0}.section h2{font-size:32px;margin:0 0 10px}.section-intro{color:var(--muted);line-height:1.9;margin:0 0 25px}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.feature{padding:23px;border:1px solid var(--line);background:rgba(13,19,36,.82);border-radius:20px}.icon{font-size:22px;margin-bottom:14px}.feature h3{margin:0 0 7px;font-size:16px}.feature p{margin:0;color:var(--muted);font-size:13px;line-height:1.9}.cta{margin:30px 0 70px;padding:35px;border:1px solid #2b3551;border-radius:24px;background:linear-gradient(135deg,rgba(118,108,255,.16),rgba(56,189,248,.06));display:flex;align-items:center;justify-content:space-between;gap:20px}.cta h2{margin:0 0 7px}.cta p{margin:0;color:var(--muted);font-size:13px}footer{padding:0 0 30px;color:#738097;text-align:center;font-size:11px}@media(max-width:850px){.hero{padding-top:55px}.hero-grid{grid-template-columns:1fr;gap:35px}.preview{transform:none}.features{grid-template-columns:1fr}.cta{flex-direction:column;align-items:flex-start}.nav-actions a:first-child{display:none}}@media(max-width:500px){h1{letter-spacing:-1px}.lead{font-size:16px}.actions{flex-direction:column}.btn{width:100%}.preview-main{min-height:230px}}
-</style>
-</head>
-<body>
-<header><div class="container"><nav><a class="brand" href="/home"><span class="logo">ک</span><span>کاداد کلاس</span></a><div class="nav-actions"><a href="/join">ورود به کلاس</a><?php if($user): ?><a class="login" href="/panel">پنل من</a><?php else: ?><a class="login" href="/login/signin.php">ورود</a><?php endif; ?></div></nav></div></header>
+$pageTitle='خانه';
+$pageDescription='کاداد کلاس؛ فضای ساده و سریع برای برگزاری و شرکت در کلاس‌های آنلاین.';
+require __DIR__ . '/_header.php';
+?>
 <main>
-<section class="hero"><div class="container"><div class="hero-grid"><div><div class="eyebrow"><span class="pulse"></span> فضای کلاس آنلاین کاداد</div><h1>کلاس آنلاین،<br><span class="gradient">بدون دردسر.</span></h1><p class="lead">کلاس را بساز، دانش‌آموزها را مدیریت کن و آموزش را در یک فضای ساده و سریع شروع کن؛ از ورود و چت تا مدیریت اعضا و مجوزهای کلاس.</p><div class="actions"><a class="btn primary" href="<?= $user ? '/panel' : '/login/signup.php' ?>"><?= $user ? 'رفتن به پنل' : 'شروع کنید' ?></a><a class="btn secondary" href="/join">ورود با کد کلاس</a></div></div><div class="preview" aria-hidden="true"><div class="preview-bar"><span class="circle"></span><span class="circle"></span><span class="circle"></span></div><div class="preview-main"><div class="screen">🎓<br>کلاس در حال برگزاری</div><div class="mini-side"><div class="mini-person"></div><div class="mini-person"></div><div class="mini-person"></div><div class="mini-person"></div></div></div></div></div></div></section>
-<section class="section"><div class="container"><h2>همه‌چیز برای شروع کلاس</h2><p class="section-intro">امکانات اصلی را ساده نگه داشته‌ایم تا مدرس به‌جای تنظیمات پیچیده، روی تدریس تمرکز کند.</p><div class="features"><article class="feature"><div class="icon">🎥</div><h3>کلاس زنده</h3><p>تصویر، صدا و اشتراک صفحه در یک محیط یکپارچه برای کلاس.</p></article><article class="feature"><div class="icon">👥</div><h3>مدیریت اعضا</h3><p>مشاهده شرکت‌کنندگان، مدیریت درخواست‌ها و کنترل مجوزهای رسانه‌ای.</p></article><article class="feature"><div class="icon">💬</div><h3>چت کلاس</h3><p>گفت‌وگوی سریع دانش‌آموزها و مدرس در کنار فضای تدریس.</p></article></div></div></section>
-<section class="container"><div class="cta"><div><h2>آماده‌ای کلاس را شروع کنی؟</h2><p>یک کلاس بساز یا با کد کلاس وارد جلسه شو.</p></div><a class="btn primary" href="/join">ورود به کلاس</a></div></section>
-</main><footer>© کاداد کلاس</footer>
-</body></html>
+<section class="page" style="padding-bottom:45px"><div class="container">
+<div class="eyebrow"><span class="dot"></span> فضای کلاس آنلاین کاداد</div>
+<h1>کلاس آنلاین،<br><span class="gradient">بدون دردسر.</span></h1>
+<p class="lead">کلاس را بساز، دانش‌آموزها را مدیریت کن و آموزش را در یک فضای ساده و سریع شروع کن؛ از ورود و چت تا مدیریت اعضا و مجوزهای کلاس.</p>
+<div class="actions">
+<a class="btn primary" href="<?= $user ? '/panel' : '/login/signup.php' ?>"><?= $user ? 'رفتن به پنل' : 'شروع کنید' ?></a>
+<a class="btn secondary" href="/join">🚪 ورود با کد کلاس</a>
+<a class="btn secondary" href="/home/features.php">✨ مشاهده امکانات</a>
+<a class="btn secondary" href="/home/about.php">ℹ️ درباره کاداد کلاس</a>
+<a class="btn secondary" href="/home/contact.php">📞 تماس با ما</a>
+</div>
+</div></section>
+<section class="section"><div class="container"><h2>کاداد کلاس چه امکاناتی دارد؟</h2><p class="section-intro">همه‌چیز برای شروع و مدیریت یک کلاس آنلاین، در یک محیط ساده.</p><div class="grid">
+<article class="card"><div class="icon">🎥</div><h3>کلاس زنده</h3><p>تصویر، صدا و اشتراک صفحه برای برگزاری جلسه آنلاین.</p></article>
+<article class="card"><div class="icon">👥</div><h3>مدیریت اعضا</h3><p>مدیریت شرکت‌کنندگان، درخواست‌های ورود و مجوزهای رسانه‌ای.</p></article>
+<article class="card"><div class="icon">💬</div><h3>چت کلاس</h3><p>گفت‌وگوی سریع مدرس و دانش‌آموزها در کنار کلاس.</p></article>
+</div></div></section>
+<section class="container"><div class="card" style="text-align:center;padding:38px;margin-bottom:20px"><h2 style="margin:0 0 10px">بیشتر با کاداد کلاس آشنا شو</h2><p class="section-intro" style="margin-bottom:20px">جزئیات امکانات و اطلاعات پروژه را در صفحات زیر ببین.</p><div class="actions" style="justify-content:center"><a class="btn primary" href="/home/features.php">مشاهده همه امکانات</a><a class="btn secondary" href="/home/about.php">درباره ما</a><a class="btn secondary" href="/home/contact.php">تماس با ما</a></div></div></section>
+</main>
+<?php require __DIR__ . '/_footer.php'; ?>
