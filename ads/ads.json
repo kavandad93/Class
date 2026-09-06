@@ -1,14 +1,3 @@
 {
-  "ads": [
-    {
-      "type": "5s",
-      "name": "نمونه تبلیغ ۵ ثانیه‌ای",
-      "link": "/ads/5s/example.mp4"
-    },
-    {
-      "type": "popup",
-      "name": "نمونه تبلیغ پاپ‌آپ",
-      "link": "/ads/popop/example.jpg"
-    }
-  ]
+  "ads": []
 }
