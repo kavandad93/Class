@@ -66,9 +66,11 @@
     const label = document.getElementById('kadad-audio-gain-label');
     const slider = document.getElementById('kadad-audio-gain-slider');
     const value = document.getElementById('kadad-audio-gain-value');
+    const toggle = document.getElementById('kadad-audio-gain-toggle');
     if (label) label.textContent = `🔊 ${percent()}%`;
     if (slider) slider.value = String(gainValue);
     if (value) value.textContent = `${percent()}%`;
+    if (toggle) toggle.textContent = `🔊 ${percent()}%`;
   }
 
   function buildUI() {
@@ -96,8 +98,8 @@
       #kadad-audio-gain-slider{width:100%;accent-color:#6d63ff;cursor:pointer;direction:ltr}
       .kadad-audio-gain-scale{display:flex;justify-content:space-between;color:#91a0b8;font-size:10px;margin-top:2px;direction:ltr}
       @media(max-width:900px){
-        #kadad-audio-gain{left:12px;top:auto;bottom:194px;z-index:100020}
-        #kadad-audio-gain-panel{width:235px;left:0;bottom:51px}
+        #kadad-audio-gain{right:12px!important;left:auto!important;top:auto!important;bottom:143px!important;z-index:100020!important}
+        #kadad-audio-gain-panel{width:235px;right:0;left:auto;bottom:51px}
       }
     `;
     document.head.appendChild(style);
