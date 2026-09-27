@@ -1,76 +1,86 @@
-# Kadad Class
+Kadad Class
 
-پلتفرم کلاس آنلاین کاداد (`class.kadad.ir`) برای برگزاری کلاس‌های آنلاین با احراز هویت، مدیریت اعضا، چت و ویدیو/صدا با Cloudflare RealtimeKit.
+Kadad Class is an online classroom platform by Kadad, designed for hosting online classes with authentication, member management, chat, and real-time video/audio communication using Cloudflare RealtimeKit.
 
-## وضعیت
+«The main and live version of Kadad Class is deployed at "class.kadad.ir" (https://class.kadad.ir).
 
-**Final release — V.1.0.1**
+The GitHub repository contains the project's source code and development history. The actual production service is hosted and operated at class.kadad.ir.»
 
-این نسخه پس از یک بازبینی امنیتی داخلی منتشر می‌شود و شامل سخت‌گیری‌های امنیتی و بهبودهای نسخه نهایی است.
+Status
 
-## امکانات
+Final Release — V1.0.1
 
-- ثبت‌نام و ورود کاربران
-- نقش‌های دانش‌آموز، مدرس و مدیر
-- ساخت و مدیریت کلاس
-- ورود با کد کلاس
-- کنترل دسترسی اعضای کلاس
-- درخواست ورود و تأیید توسط مدرس/مدیر
-- چت کلاس
-- ویدیو، صدا و Screen Share با Cloudflare RealtimeKit
-- مدیریت مجوز میکروفون، دوربین و Screen Share برای دانش‌آموزان
-- رابط کاربری فارسی و RTL
-- استقرار با cPanel Git Version Control
+This release follows an internal security review and includes additional security hardening and improvements for the final version.
 
-## امنیت
+Features
 
-- کوئری‌های دیتابیس با PDO prepared statements
-- ذخیره رمز عبور با `password_hash`
-- بازتولید Session ID هنگام ورود
-- محافظت CSRF برای عملیات تغییر‌دهنده
-- کنترل دسترسی در سطح کلاس و کاربر
-- Escape کردن خروجی‌های HTML برای کاهش ریسک XSS
-- اطلاعات محرمانه Cloudflare خارج از `public_html` نگهداری می‌شود
-- endpoint چت دارای CSRF protection است
+- User registration and login
+- Student, teacher, and administrator roles
+- Class creation and management
+- Class code-based joining
+- Class member access control
+- Join requests with teacher/administrator approval
+- Class chat
+- Video, audio, and screen sharing using Cloudflare RealtimeKit
+- Microphone, camera, and screen-sharing permission management for students
+- Persian RTL user interface
+- Deployment using cPanel Git Version Control
 
-> این پروژه هنوز باید در محیط واقعی، جدا از بررسی سورس، از نظر تنظیمات وب‌سرور، TLS، هدرهای امنیتی و پیکربندی هاست نیز بررسی شود.
+Security
 
-## ساختار
+- Database queries using PDO prepared statements
+- Passwords securely stored using "password_hash"
+- Session ID regeneration upon login
+- CSRF protection for state-changing operations
+- Class-level and user-level access control
+- HTML output escaping to reduce XSS risks
+- Sensitive Cloudflare credentials stored outside "public_html"
+- CSRF protection for the chat endpoint
 
-- `app/` — منطق Laravel
-- `routes/` — routeهای Laravel
-- `database/` — migrations و SQLهای دیتابیس
-- `login/` — ورود، ثبت‌نام و خروج
-- `panel/` — پنل کاربر و مدیریت کلاس
-- `join/` — ورود به کلاس و رابط جلسه
-- `room/` — رابط room و API چت
-- `realtime/` — صدور token و مدیریت Cloudflare RealtimeKit
-- `includes/` — bootstrap و توابع مشترک
-- `assets/` — assetهای عمومی
+«The project should still be reviewed in its actual production environment, independently of source-code review, particularly regarding web-server configuration, TLS, security headers, and hosting configuration.»
 
-## محیط استقرار
+Project Structure
 
-- Domain: `class.kadad.ir`
+- "app/" — Laravel application logic
+- "routes/" — Laravel routes
+- "database/" — Database migrations and SQL files
+- "login/" — Login, registration, and logout
+- "panel/" — User and class management panels
+- "join/" — Class joining and session interface
+- "room/" — Room interface and chat API
+- "realtime/" — Cloudflare RealtimeKit token generation and management
+- "includes/" — Bootstrap and shared functions
+- "assets/" — Public assets
+
+Production Environment
+
+- Production Domain: "class.kadad.ir"
 - PHP: 8.1
 - Database: MySQL 5.7
 - Hosting: cPanel
 - Deployment: cPanel Git Version Control
 - Repository: GitHub
 
-## پیکربندی
+Live Production Instance
 
-اطلاعات حساس مانند رمز دیتابیس و Cloudflare API Token نباید داخل Git commit شوند.
+The primary production instance of Kadad Class is available at:
 
-در محیط فعلی، تنظیمات حساس در فایل خارج از document root قرار می‌گیرند:
+https://class.kadad.ir
 
-```text
+This is the main deployed version of the project and the environment used for actual online classes.
+
+Configuration
+
+Sensitive information such as database credentials and Cloudflare API tokens must never be committed to Git.
+
+In the current production environment, sensitive configuration is stored outside the document root:
+
 /home2/kadad/data.php
-```
 
-## مجوز
+License
 
-این پروژه تحت مجوز **MIT License** منتشر شده است. متن کامل مجوز در فایل `LICENSE` قرار دارد.
+This project is released under the MIT License. The complete license text is available in the "LICENSE" file.
 
-## نسخه
+Version
 
-`V.1.0.1` — Final security release
+"V1.0.1" — Final Security Release
